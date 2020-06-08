@@ -1,17 +1,30 @@
-import 'package:finding_heroes/screens/create_account_page.dart';
-import 'package:finding_heroes/screens/home_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:finding_heroes/widgets/animated_alert_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'create_account_page.dart';
+import 'home_donators_page.dart';
+import 'home_recivers_page.dart';
 
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin  {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   TextEditingController _emailController = TextEditingController();  
   TextEditingController _passwordController = TextEditingController();  
+  AnimationController controller;
+  Animation<double> scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = AnimationController(vsync: this, duration: Duration(milliseconds: 450));
+    scaleAnimation = CurvedAnimation(parent: controller, curve: Curves.elasticInOut);
+    controller.forward();
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -184,25 +197,50 @@ class _LoginPageState extends State<LoginPage> {
 
   _loginUser() async {
     AuthResult _autResult;
-    print(_emailController.value.toString().trim());
+
     try {
       _autResult = await _auth.signInWithEmailAndPassword(
         email: _emailController.value.text.trim(),
         password: _passwordController.value.text.trim()
       );
-      
+
       if(!_autResult.user.uid.isEmpty){
-        Navigator.push(
-          context, 
-          MaterialPageRoute(
-            builder: (builder) => HomePage()
+
+       await Firestore.instance.collection('users')
+       .document(_autResult.user.uid)
+       .get()
+       .then((value) {
+         if(value.data.values.toList()[0] == 1){
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (builder) => HomeReciversPage(value.data.values.toList()[1]))
+          );
+         }else{
+           Navigator.push(
+            context,
+            MaterialPageRoute(builder: (builder) => HomeDonatorsPage())
+          );
+         }
+
+       }); 
+      }else{
+        showDialog(
+          context: context,
+          builder: (_) => AnimatedAlertWidget(
+            Icon(Icons.error, color: Colors.red,),
+            "Ocorreu um erro. Tente novamente mais tarde" 
           )
-        ); 
+        );
       }
-    } catch (e) {
-      print(e.toString());
+    } catch (e) {    
+      showDialog(
+        context: context,
+        builder: (_) => AnimatedAlertWidget(
+          Icon(Icons.error, color: Colors.red,),
+          "Email ou senha incorretos"
+        )
+      );
     }
-   
   }
 
 }

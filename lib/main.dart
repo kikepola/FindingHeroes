@@ -1,5 +1,4 @@
-import 'package:finding_heroes/screens/home_page.dart';
-import 'package:finding_heroes/screens/login_screen.dart';
+import 'package:finding_heroes/pages/login_page.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(MyApp());

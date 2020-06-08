@@ -1,22 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:finding_heroes/widgets/donation_card.dart';
 import 'package:flutter/material.dart';
-import 'cards/donation_card.dart';
 
-class HomePage extends StatefulWidget {
+class HomeDonatorsPage extends StatefulWidget {
   @override
-  _HomePageState createState() => _HomePageState();
+  _HomeDonatorsPageState createState() => _HomeDonatorsPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomeDonatorsPageState extends State<HomeDonatorsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold( 
       appBar: null,
-      body: createHomePageBody(),
+      body: createHomeDonatorsPageBody(),
     );
   }
 
-  createHomePageBody() {
+  createHomeDonatorsPageBody() {
     return DefaultTabController(
       length: 2,
       child: NestedScrollView(

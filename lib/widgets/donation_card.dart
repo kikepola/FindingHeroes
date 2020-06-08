@@ -1,3 +1,4 @@
+import 'package:finding_heroes/pages/donation_detail_page.dart';
 import 'package:flutter/material.dart';
 
 class DonationCard extends StatefulWidget {
@@ -25,7 +26,7 @@ class _DonationCardState extends State<DonationCard> {
           createContent(),
           createSaibaMais()
         ],
-      ),
+      ),    
     );
   }
 
@@ -62,6 +63,12 @@ class _DonationCardState extends State<DonationCard> {
     return Expanded(
       flex: 2,
       child: GestureDetector(
+        onTap: (){          
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (builder) => DonationDetailPage(widget._titulo))
+          );          
+        },
         child: Container(
           margin: const EdgeInsets.fromLTRB(240, 0, 15, 15),
           decoration: new BoxDecoration(

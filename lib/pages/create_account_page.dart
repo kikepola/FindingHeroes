@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:finding_heroes/widgets/animated_alert_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -17,24 +18,24 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   var _isLogin = true;
   var _usrEmail = '';
   var _usrPassword = '';
+  var _usrType = 1;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: null,
       body: Container(
-      color: Color.fromARGB(255, 132, 187, 189),
-      child: Column(children: <Widget>[
-        Expanded(
-          flex: 2,
-          child: _createLogoArea(),
-        ),
-        Expanded(
-          flex: 6,
-          child: _createCreateAccountForm(context),
-        )
-      ],),
-    ),
+        color: Color.fromARGB(255, 132, 187, 189),
+        child: Column(children: <Widget>[
+          Expanded(
+            flex: 2,
+            child: _createLogoArea(),
+          ),
+          Expanded(
+            flex: 6,
+            child: _createCreateAccountForm(context),
+          )
+        ],),
+      ),
     );
   }
   _createLogoArea(){
@@ -81,95 +82,12 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                   ),
                 ),
               ),
+              _createEmailFormField(),
+              _createUserNameFormField(_usrName),
+              _createPasswordFormField(),
+              _createUsrTypeRadioArea(),
               Container(
-                height: 80,
-                child: Center(
-                  child: Container(
-                    margin: const EdgeInsets.fromLTRB(10, 0, 10, 20),
-                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                    decoration: new BoxDecoration(
-                        color: Color.fromARGB(255, 230, 230, 230),
-                        borderRadius: new BorderRadius.all(Radius.circular(20))
-                    ),
-                    child: TextFormField(
-                      validator: (value){
-                        if(value.isEmpty || !value.contains('@')){
-                          return 'Porfavor, entre com um email valido';
-                        }
-                        return null;
-
-                      },
-                      decoration: InputDecoration(
-                          labelText: 'Email',
-                          border: InputBorder.none,
-                          hintText: 'Email'
-                      ),
-                      onSaved: (value) {
-                        this._usrEmail = value;
-                      },
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                height: 80,
-                child: Center(
-                  child: Container(
-                    margin: const EdgeInsets.fromLTRB(10, 0, 10, 20),
-                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                    decoration: new BoxDecoration(
-                        color: Color.fromARGB(255, 230, 230, 230),
-                        borderRadius: new BorderRadius.all(Radius.circular(20))
-                    ),
-                    child: TextFormField(
-                       controller: _usrName,
-                      validator: (value){
-                        if(value.isEmpty){
-                          return "Entre com um nome de usuario valido";
-                        }
-                        return null;
-                      },
-                      decoration: const InputDecoration(
-                          labelText: 'Nome do Usuario',
-                          border: InputBorder.none,
-                          hintText: 'Nome do Usuario'
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                height: 80,
-                child: Center(
-                  child: Container(
-                    margin: const EdgeInsets.fromLTRB(10, 0, 10, 20),
-                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                    decoration: new BoxDecoration(
-                        color: Color.fromARGB(255, 230, 230, 230),
-                        borderRadius: new BorderRadius.all(Radius.circular(20))
-                    ),
-                    child: TextFormField(
-                      validator: (value){
-                        if(value.isEmpty || value.length <= 7){
-                          return "Crie uma senha com 8 caracteres no minimo";
-                        }
-                        return null;
-                      },
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                          labelText: 'Senha',
-                          border: InputBorder.none,
-                          hintText: 'Senha'
-                      ),
-                      onSaved: (value){
-                        this._usrPassword = value;
-                      },
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                height: MediaQuery.of(context).size.height - 600,
+                height: MediaQuery.of(context).size.height - 680,
                 child: Align(
                   alignment: Alignment.bottomRight,
                   child: Container(
@@ -203,6 +121,143 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
     );
   }
 
+  _createEmailFormField(){
+    return  Container(
+      height: 80,
+      child: Center(
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(10, 0, 10, 20),
+          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+          decoration: new BoxDecoration(
+              color: Color.fromARGB(255, 230, 230, 230),
+              borderRadius: new BorderRadius.all(Radius.circular(20))
+          ),
+          child: TextFormField(
+            validator: (value){
+              if(value.isEmpty || !value.contains('@')){
+                return 'Porfavor, entre com um email valido';
+              }
+              return null;
+            },
+            decoration: InputDecoration(
+                labelText: 'Email',
+                border: InputBorder.none,
+                hintText: 'Email'
+            ),
+            onSaved: (value) {
+              this._usrEmail = value;
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  _createUserNameFormField(_usrName){
+    return Container(
+      height: 80,
+      child: Center(
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(10, 0, 10, 20),
+          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+          decoration: new BoxDecoration(
+              color: Color.fromARGB(255, 230, 230, 230),
+              borderRadius: new BorderRadius.all(Radius.circular(20))
+          ),
+          child: TextFormField(
+            controller: _usrName,
+            validator: (value){
+              if(value.isEmpty){
+                return "Entre com um nome de usuario valido";
+              }
+              return null;
+            },
+            decoration: const InputDecoration(
+                labelText: 'Nome do Usuario',
+                border: InputBorder.none,
+                hintText: 'Nome do Usuario'
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  _createPasswordFormField(){
+    return Container(
+      height: 80,
+      child: Center(
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(10, 0, 10, 20),
+          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+          decoration: new BoxDecoration(
+              color: Color.fromARGB(255, 230, 230, 230),
+              borderRadius: new BorderRadius.all(Radius.circular(20))
+          ),
+          child: TextFormField(
+            validator: (value){
+              if(value.isEmpty || value.length <= 7){
+                return "Crie uma senha com 8 caracteres no minimo";
+              }
+              return null;
+            },
+            obscureText: true,
+            decoration: const InputDecoration(
+                labelText: 'Senha',
+                border: InputBorder.none,
+                hintText: 'Senha'
+            ),
+            onSaved: (value){
+              this._usrPassword = value;
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  _createUsrTypeRadioArea(){
+    return Container(
+      margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+      decoration: new BoxDecoration(
+          color: Color.fromARGB(255, 230, 230, 230),
+          borderRadius: new BorderRadius.all(Radius.circular(20))
+      ),
+      child: Column(
+        children: <Widget>[
+          Container(
+            child:ListTile(
+              title: Text("Quero  fazer uma doação!"),
+              leading: Radio(
+                groupValue: _usrType,                     
+                value: 0,          
+                onChanged: (val){
+                  setState(() {
+                    _usrType = val;
+                  });
+                },
+              ),
+            )       
+          ),
+          Container(
+            child:ListTile(
+              title: Text("Quero receber doação!"),
+              leading: Radio(
+                groupValue: _usrType,                   
+                value: 1, 
+                onChanged: (val){
+                  setState(() {
+                    _usrType = val;
+                  });
+                },              
+              ),
+            )       
+          ),
+        ],
+      ),
+    );
+  }
+
   _trySubmit(ctx) async {
     AuthResult authResult;
     String msg;
@@ -220,7 +275,8 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
         Firestore.instance.collection('users')
         .document(authResult.user.uid)
         .setData({
-          'username': _usrName.value.text.trim()
+          'username': _usrName.value.text.trim(),
+          'user_type':_usrType
         });
 
 
@@ -267,17 +323,14 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
         msg = 'Ocorreu um erro, favor verificar suas credenciais';
 
         showDialog(
-          context:  context,
-          builder:  (BuildContext context) {
-            return AlertDialog(
-              title: Icon(Icons.error, color: Colors.red,),
-              content: Text(err.message),
-            );
-          },
+          context: context,
+          builder: (_) => AnimatedAlertWidget(
+            Icon(Icons.error, color: Colors.red,),
+            msg
+          )
         );
       }
     }
   }
+
 }
-
-
