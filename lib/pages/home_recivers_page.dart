@@ -1,4 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:finding_heroes/pages/login_page.dart';
+import 'package:finding_heroes/pages/new_project_page.dart';
+import 'package:finding_heroes/widgets/donation_card.dart';
+import 'package:finding_heroes/widgets/donation_detail_widget.dart';
+import 'package:finding_heroes/widgets/new_project_widget.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:keyboard_avoider/keyboard_avoider.dart';
 
 
 class HomeReciversPage extends StatefulWidget {
@@ -10,6 +18,7 @@ class HomeReciversPage extends StatefulWidget {
 }
 
 class _HomeReciversPageState extends State<HomeReciversPage> {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,18 +26,55 @@ class _HomeReciversPageState extends State<HomeReciversPage> {
     );
   }
   
-  _createUserArea() {
+  _createUserArea() { 
     return Container(
       color: Color.fromARGB(255, 112, 167, 169),
       child: Column(
         children: <Widget>[
           Expanded(
             flex: 2,
-            child: Center(
-              child: Image(        
-                width: 200,
-                image: AssetImage("assets/images/logo.png"),              
+            child: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/logo.png'),
+                  fit: BoxFit.contain,
+                ),
               ),
+              child: Column(
+                children: <Widget>[
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    alignment: Alignment.centerRight,
+                    color: Colors.transparent,
+                    height: 80,
+                    child: DropdownButton(
+                      icon: Icon(
+                        Icons.view_headline, 
+                        color: Colors.white,
+                      ),
+                      items: [
+                        DropdownMenuItem(child: Container(child: Row(
+                          children: <Widget>[
+                            Icon(Icons.exit_to_app),
+                            SizedBox(width: 8),
+                            Text("Sair")
+                          ],
+                        ),
+                      ),
+                      value: 'Sair',
+                    )
+                    ],onChanged: (itemIdentifier){
+                      if(itemIdentifier == 'Sair'){
+                        FirebaseAuth.instance.signOut();
+                        Navigator.push(
+                          context, 
+                          MaterialPageRoute(builder: (builder) => LoginPage())
+                        );
+                      }
+                    },),
+                  )
+                ],
+              ),                              
             ),
           ),
           Expanded(
@@ -42,16 +88,37 @@ class _HomeReciversPageState extends State<HomeReciversPage> {
                 )
               ),
               padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-              child: Column(
-                children: <Widget>[
-                  _createWelcomeUser(),
-                  _createUsrProjectsArea()
-                ],
-              ),
-            ),
+              child: StreamBuilder(
+                stream: Firestore.instance.collection('donations').snapshots(),
+                builder: (context, snapshot){
+                  if(snapshot.connectionState == ConnectionState.waiting){
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  if(snapshot.data.documents.length > 0){
+                    return ListView.builder(
+                      itemCount: snapshot.data.documents.length,
+                      itemBuilder: (ctx, index) => DonationDetailWidget(
+                        snapshot.data.documents[index]['project_name'],
+                        snapshot.data.documents[index]['description'],
+                        snapshot.data.documents[index]['email'],
+                        snapshot.data.documents[index]['phone'],
+                        snapshot.data.documents[index]['donation_type']
+                      )
+                    );
+                  }else{
+                    return Column(
+                      children: <Widget>[            
+                        _createWelcomeUser(),      
+                        _createUsrProjectsArea()
+                      ],
+                    );
+                  }                                                         
+                }
+              )    
+            )
           ),
         ],
-      ),
+      ), 
     );
   }
                                     
@@ -65,19 +132,21 @@ class _HomeReciversPageState extends State<HomeReciversPage> {
         child: Row(
           children: <Widget>[
             Text(
-              widget.user_name,
+              widget.user_name[0].toUpperCase() + widget.user_name.substring(1),
               style: TextStyle(
-                color: Colors.black,
+                color: Color.fromARGB(250, 50, 50, 50),
                 fontSize: 30,
-                fontWeight: FontWeight.w800
+                fontWeight: FontWeight.w800,
+                fontStyle: FontStyle.italic
               ),
             ),
             Text(
               ", seja bem vindo!",
               style: TextStyle(
-                color: Colors.black,
+                color: Color.fromARGB(230, 100, 100, 100),
                 fontSize: 24,
-                fontWeight: FontWeight.w800
+                fontWeight: FontWeight.w800,
+                fontStyle: FontStyle.italic
               ),
             ),
           ],
@@ -96,17 +165,27 @@ class _HomeReciversPageState extends State<HomeReciversPage> {
             Text(
               "Você não tem nenhum projeto para receber doações"
             ),             
-            Container(
-              margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Color.fromARGB(255, 112, 167, 169),
-                borderRadius: BorderRadius.all(Radius.circular(10))
-              ),
-              child: Container(               
-                child: Text(
-                  "Adicionar projeto",
-                  style: TextStyle(color: Colors.white),
+            GestureDetector(
+              onTap: (){
+                setState(() {
+                  Navigator.push(
+                    context, 
+                    MaterialPageRoute(builder: (builder) => NewProjectPage())
+                  );
+                });
+              },
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Color.fromARGB(255, 112, 167, 169),
+                  borderRadius: BorderRadius.all(Radius.circular(10))
+                ),
+                child: Container(               
+                  child: Text(
+                    "Adicionar projeto",
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
             ),
@@ -116,6 +195,18 @@ class _HomeReciversPageState extends State<HomeReciversPage> {
     );
   }
 
+  _createNewProjectArea(){
+    return Expanded(
+      flex: 7,
+      child: NewProjectWidget(),
+    );
+  }
+}
+
+getUserId() async {
+  FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseUser user = await _auth.currentUser();
+  return  user.uid;
 }
 
  
