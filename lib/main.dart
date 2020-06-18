@@ -3,6 +3,7 @@ import 'package:finding_heroes/pages/home_donators_page.dart';
 import 'package:finding_heroes/pages/home_recivers_page.dart';
 import 'package:finding_heroes/pages/login_page.dart';
 import 'package:finding_heroes/pages/page_indicator.dart';
+import 'package:finding_heroes/pages/splashscreen_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
           if(userSnapshot.hasData){            
             return IndicatorPage();
           }else{
-            return LoginPage();
+            return SplashScreenPage();
           }
         },
       )

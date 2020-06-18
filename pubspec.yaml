@@ -26,6 +26,7 @@ dependencies:
   cloud_firestore:
   keyboard_avoider: ^0.1.2
   firebase_auth: ^0.16.1
+  splashscreen:
 
 dev_dependencies:
   flutter_test:
